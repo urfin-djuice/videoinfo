@@ -1,0 +1,8 @@
+version: '3.5'
+services:
+  videoinfo:
+    command: ["videoinfo", "--addr=:80"]
+    container_name: videoinfo
+    build: ./
+    ports:
+      - 8080:80

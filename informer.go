@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/zelenin/go-mediainfo"
 	"strconv"
 )
@@ -10,7 +11,7 @@ type MediaInfo struct {
 	Width    *int   `json:"width,omitempty"`
 	Height   *int   `json:"height,omitempty"`
 	BitRate  int    `json:"bit_rate"`
-	Duration int    `json:"duration"`
+	Duration string `json:"duration"`
 }
 
 func newInformer(mediaInfo *mediainfo.File) *Informer {
@@ -49,12 +50,17 @@ func (i Informer) getHeight(streamType mediainfo.StreamKind, streamNumber int) i
 	return i.getIntParameter(streamType, streamNumber, "Height")
 }
 
-func (i Informer) getDuration(streamType mediainfo.StreamKind, streamNumber int) int {
-	return i.getIntParameter(streamType, streamNumber, "Duration")
+func (i Informer) getDuration(streamType mediainfo.StreamKind, streamNumber int) string {
+	durationMs := i.getIntParameter(streamType, streamNumber, "Duration")
+	return fmt.Sprintf("%.3fs", float64(durationMs) / 1000.0)
 }
 
 func (i Informer) getName(streamType mediainfo.StreamKind, streamNumber int) string {
-	return i.mediaInfo.Parameter(streamType, streamNumber, "CodecID/Hint")
+	name := i.mediaInfo.Parameter(streamType, streamNumber, "CodecID/Hint")
+	if name == "" {
+		name = i.mediaInfo.Parameter(streamType, streamNumber, "CodecID")
+	}
+	return name
 }
 
 func (i Informer) getStreamInfo(streamType mediainfo.StreamKind, streamNumber int) MediaInfo {
